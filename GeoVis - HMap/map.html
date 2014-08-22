@@ -39,12 +39,12 @@
 
       xy = projection.scale(oldScala * (width / oldTranslate[0] / 2) * 0.9)
         .translate([width / 2, height / 2]);
-      
+
       path = d3.geo.path().projection(xy);
 
       svg.attr('width', width).
       	  attr('height', height);
-      	  
+
       svg.selectAll('path').data(features).enter().append('svg:path')
         .attr('d', path)
         .on('mouseover', function(data) {
@@ -53,10 +53,13 @@
         .on('mouseout', function(data) {
           d3.select(this).attr('fill', 'rgba(128,124,139,0.61');
         })
+        .on('click',function(data){
+            alert(data.properties.name)
+        })
         .attr('fill', 'rgba(128,124,139,0.61)')
         .attr('stroke', 'rgba(255,255,255,1)')
         .attr('stroke-width', 1);
-      
+
       var myLocation = xy([121.3997, 31.0456]);
       svg.append('circle').attr('r', 15)
         .attr('fill', 'url(#tip)')
