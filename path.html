@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = "utf-8">
+        <title>D3 Demoes</title>
+        <script type = "text/javascript" src = "d3/d3.js">
+        </script>
+    </head>
+    <body>
+        <script type = "text/javascript">
+
+            var svg = d3.select('body').append('svg')
+
+            svg.append('path')
+                .attr({
+                    id:'mypath',
+                    d :'M50 100Q350 50 350 250Q250 50 50 250'
+                })
+                .style({
+                    fill:'none',
+                    stroke:'green',
+                    'stroken-width':10
+                })
+
+            svg.append('text')
+                .attr('x',10)
+                .attr('y',20)
+                .style('fill','steelblue')
+                .style('font-size','24px')
+                .style('font-weight','bold')
+                .append('textPath').attr({
+                    'xlink:href' : '#mypath'
+                })
+                .text('.text加入文字测试！并用xlink:href: #mypath加入了路径')
+        </script>
+    </body>
+</html>

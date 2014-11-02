@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+		<meta charset="utf-8">
+		<title>D3 Demoes</title>
+		<script type="text/javascript" src="d3/d3.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+// 在 body 中插入一個 svg
+	var svg = d3.select('body').append('svg').attr('width',700).attr('height',500);
+
+		// 在 svg 中插入 ellipse
+	svg.append('ellipse').attr({
+		cx: 100,
+		cy: 60,
+		rx: 30,
+		ry: 50
+	}).style({
+		fill: 'pink',
+		stroke: 'green',
+		'stroke-width': 10
+	});
+
+	// 在 svg 中插入 ellipse
+	svg.append('ellipse').attr({
+		cx: 200,
+		cy: 60,
+		rx: 30,
+		ry: 50
+	}).style({
+		fill: 'pink',
+		stroke: 'green',
+		'stroke-width': 10,
+		'fill-opacity': .6
+	});
+
+	// 在 svg 中插入 ellipse
+	svg.append('ellipse').attr({
+		cx: 145,
+		cy: 180,
+		rx: 110,
+		ry: 40
+	}).style({
+		fill: 'pink',
+		stroke: 'green',
+		'stroke-width': 5,
+		opacity: .6
+	});
+		</script>
+
+	</body>
+</html>
