@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+		<meta charset="utf-8">
+		<title>testD3-23-loadfile.html</title>
+		<script type="text/javascript" src="d3/d3.js"></script>
+	<style type="text/css">
+	</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+		var numset=[] ;//(1)数组初始化
+		var nameset=[] ;//全局变量方便加载完了使用
+
+		//(2)加载csv数据
+		d3.csv("http://localhost:8080/spring/D3data/food.csv",function(error,data){
+			if(error){
+				console.log(error);
+			}else{
+				//(3)取出其中的数字，和类别名
+				for(var i=0;i<data.length;i++){
+					numset.push(parseFloat(data[i].Delicious));
+					nameset.push(data[i].Food);
+				}
+        //这个地方特别说明一下：只能在这个回调函数内部使用dataset数组，跳出之后就变成空的了，全局变量赋值都不管用，不知道为什么
+
+		//(4)numset转化数据为适合生成饼图的对象数组
+		var pie=d3.layout.pie(numset);
+
+		var h=300;
+		var w=300;
+
+		var outerRadius=w/2;//外半径
+		// 圆环内半径
+		var innerRadius=w/3;
+		// 用svg的path绘制弧形的内置方法
+		var arc=d3.svg.arc()//设置弧度的内外径，等待传入的数据生成弧度
+		.outerRadius(outerRadius)
+		.innerRadius(innerRadius);
+
+		var svg=d3.select("body")
+				.append("svg")
+				.attr("width",w)
+				.attr("height",h);
+		// 颜色函数
+		var color=d3.scale.category10();//创建序数比例尺和包括10中颜色的输出范围
+		// 准备分组,把每个分组移到图表中心
+		var arcs=svg.selectAll("g.arc")
+		.data(pie(numset))
+		.enter()
+		.append("g")
+		.attr("class","arc")
+		//移到图表中心
+		.attr("transform","translate("+outerRadius+","+outerRadius+")");//translate(a,b)a表示横坐标起点，b表示纵坐标起点
+
+		// 为组中每个元素绘制弧形路路径
+		arcs.append("path")//每个g元素都追加一个path元素用绑定到这个g的数据d生成路径信息
+		.attr("fill",function(d,i){//填充颜色
+			console.log( i );
+			return color(i);
+		})
+		.attr("d",arc);//将角度转为弧度（d3使用弧度绘制）
+
+		//(6)nameset和numset组合生成文本
+		arcs.append("text")//每个g元素都追加一个path元素用绑定到这个g的数据d生成路径信息
+		.attr("transform",function(d){
+			return "translate("+arc.centroid(d)+")";//计算每个弧形的中心点（几何中心）
+		})
+		.attr("text-anchor","middle")
+		.text(function(d,i){
+		console.log(nameset[i]+":"+d.value);
+			return nameset[i]+":"+d.value;//这里已经转为对象了
+		});
+
+		//加载csv回调函数结束
+		}
+		});
+
+
+		</script>
+
+	</body>
+</html>
