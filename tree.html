@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+		<meta charset="utf-8">
+		<title>testD3-24-Reingold–Tilford Tree.html</title>
+		<script type="text/javascript" src="d3/d3.js"></script>
+	<style>
+
+        .node circle {
+          fill:yellow ;
+          stroke: red;
+          stroke-width: 1.5px;
+        }
+
+        .node {
+          font: 10px sans-serif ;
+        }
+
+        .link {
+          fill: green;
+          stroke: #ccc;
+          stroke-width: 1.5px;
+        }
+
+    </style>
+  </head>
+  <body>
+	<script type="text/javascript">
+    var diameter = 960;//直径
+    //(1)树指定径向布局大小和节点邻距
+    var tree = d3.layout.tree()
+        .size([360,  360])//节点展开的最大角幅度，比如设置为20度就最大展开只能占满20度的扇形区域
+        					//产生的径向布局，其中以度衡量的树广度（x），树的深度（y） 半径为r（以像素为单位），例如[360,r]。
+        .separation(function(a, b) { console.log(a+a.depth);console.log("b:"+b+b.depth);
+        return (a.parent == b.parent ? 1 : 2) / a.depth; });
+        //这种变化是为了适应径向布局的，间隙与半径成正比。返回节点之间的所需要的分离.同一个深度相邻的依次比较，从深到浅
+        //也就是说，同一个爸爸的可以同样的邻距，不同的稍宽一点用来区分开
+
+    var diagonal = d3.svg.diagonal.radial()//(2)指定为径向布局
+        .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });//加载数据之后自动为每个节点指定了这些值d，只需指定半径d.y和角度d.x / 180 * Math.PI（转换成弧度制）
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", diameter)
+        .attr("height", diameter - 150)
+      	.append("g")
+        .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+
+    //(3)加载json
+    d3.json("flare.json", function(error, root) {
+      var nodes = tree.nodes(root),//返回值是一个数组，它代表​​所有节点计算的位置。每个节点上填充一些属性：
+          links = tree.links(nodes);//返回节点数组的链接数组
+    //(4)为链接添加路径
+      var link = svg.selectAll(".link")
+          .data(links)
+          .enter().append("path")
+          .attr("class", "link")
+          .attr("d", diagonal);
+    //(5)节点分组
+      var node = svg.selectAll(".node")
+          .data(nodes)
+       	  .enter().append("g")
+          .attr("class", "node")
+          .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+    //(6)节点添加圆圈
+      node.append("circle")
+          .attr("r", 4.5);
+
+     //(7)节点添加文字
+      node.append("text")
+          .attr("dy", ".31em")
+          .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })//小于180度的文字放在前面，否则放在后面
+          .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })//？？
+          .text(function(d) { return d.name; });
+    });
+
+    //d3.select(self.frameElement).style("height", diameter - 150 + "px");
+	</script>
+	</body>
+</html>

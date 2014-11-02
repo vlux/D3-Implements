@@ -13,7 +13,7 @@
 		var nameset=[] ;//全局变量方便加载完了使用
 
 		//(2)加载csv数据
-		d3.csv("http://localhost:8080/spring/D3data/food.csv",function(error,data){
+		d3.csv("food.csv",function(error,data){
 			if(error){
 				console.log(error);
 			}else{
