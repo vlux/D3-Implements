@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <title>testD3-33-paddingTree.html</title>
+        <script src="d3/d3.js" charset="utf-8" ></script>
+        <style>
+            .node {
+              border: solid 1px white;
+              font: 10px sans-serif;
+              line-height: 12px;
+              overflow: hidden;
+              position: absolute;
+              text-indent: 2px;
+            }
+
+        </style>
+    </head>
+<body>
+
+    <script type="text/javascript">
+        var width = 960,
+            height = 500;
+
+        var color = d3.scale.category20();//20种颜色
+
+        //(1)填充树
+        var treemap = d3.layout.treemap()//使用递归的空间分割来显示节点的树。
+            .size([width, height])//指定x和y的布局大小。
+            .padding(4)//指定一个父及其子之间的填充。
+            .value(function(d) { //获取或设置树形细胞的大小。
+            return d.size/2;
+            });
+
+        //(2)设置每个树细胞用div存放
+        var div = d3.select("body").append("div")
+            .style("position", "relative")//位置相依，作用没看出来？
+            .style("width", width + "px")
+            .style("height", height + "px");
+
+        //(3)设置每个树细胞各个属性
+        d3.json("paddingTree.json",function(error, root) {
+           div.selectAll(".node")
+              .data(treemap.nodes(root))//计算树形布局和返回节点的数组。
+              .enter().append("div")
+              .attr("class", "node")
+              .style("left", function(d) { return d.x + "px"; })
+              .style("top", function(d) { return d.y + "px"; })
+              .style("width", function(d) { return Math.max(0, d.dx - 1) + "px"; })
+              .style("height", function(d) { return Math.max(0, d.dy - 1) + "px"; })
+              .style("background", function(d) { //只为有孩子的节点赋值，也就是说叶子节点的背景颜色都是他爸爸的颜色
+              	return d.children ? color(d.name) : null;
+              })
+              .text(function(d) { //同理，孩子设置文字，爸爸没有
+              	return d.children ? null : d.name;
+              });
+        });
+    </script>
+</body>
