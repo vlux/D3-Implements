@@ -1,6 +1,4 @@
-## D3-Example
-
-####    Here are the examples presented by the D3
+## Implements the research's demoes in D3.js
 
 
 #####                      Started 2014.8.16
