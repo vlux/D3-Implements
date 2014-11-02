@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+        <meta charset="utf-8">
+        <title>testD3-27-textforce.html</title>
+        <script type="text/javascript" src="d3/d3.js"></script>
+    <style type="text/css">
+    </style>
+    </head>
+    <body>
+        <script type="text/javascript">
+        //(1)链接数组
+        var links = [
+          {source: "Microsoft", target: "Amazon", type: "licensing"    ,weight:1,color:1},
+          {source: "Microsoft", target: "HTC", type: "licensing"       ,weight:3,color:4},
+          {source: "Samsung", target: "Apple", type: "suit"            ,weight:4,color:6},
+          {source: "Motorola", target: "Apple", type: "suit"           ,weight:6,color:65},
+          {source: "Nokia", target: "Apple", type: "resolved"          ,weight:3,color:76},
+          {source: "HTC", target: "Apple", type: "suit"                ,weight:8,color:879},
+          {source: "Kodak", target: "Apple", type: "suit"              ,weight:7,color:989},
+          {source: "Microsoft", target: "Barnes & Noble", type: "suit" ,weight:9,color:643},
+          {source: "Microsoft", target: "Foxconn", type: "suit"        ,weight:1,color:54},
+          {source: "Oracle", target: "Google", type: "suit"            ,weight:3,color:54},
+          {source: "Apple", target: "HTC", type: "suit"                ,weight:4,color:45},
+          {source: "Microsoft", target: "Inventec", type: "suit"       ,weight:0,color:43},
+          {source: "Samsung", target: "Kodak", type: "resolved"        ,weight:8,color:243},
+          {source: "LG", target: "Kodak", type: "resolved"             ,weight:1,color:43},
+          {source: "RIM", target: "Kodak", type: "suit"                ,weight:5,color:13},
+          {source: "Sony", target: "LG", type: "suit"                  ,weight:3,color:351},
+          {source: "Kodak", target: "LG", type: "resolved"             ,weight:4,color:1},
+          {source: "Apple", target: "Nokia", type: "resolved"          ,weight:1,color:1},
+          {source: "Qualcomm", target: "Nokia", type: "resolved"       ,weight:3,color:4},
+          {source: "Apple", target: "Motorola", type: "suit"           ,weight:4,color:6},
+          {source: "Microsoft", target: "Motorola", type: "suit"       ,weight:6,color:65},
+          {source: "Motorola", target: "Microsoft", type: "suit"       ,weight:3,color:76},
+          {source: "Huawei", target: "ZTE", type: "suit"               ,weight:8,color:879},
+          {source: "Ericsson", target: "ZTE", type: "suit"             ,weight:7,color:989},
+          {source: "Kodak", target: "Samsung", type: "resolved"        ,weight:9,color:643},
+          {source: "Apple", target: "Samsung", type: "suit"            ,weight:1,color:54},
+          {source: "Kodak", target: "RIM", type: "suit"                ,weight:3,color:54},
+          {source: "Nokia", target: "Qualcomm", type: "suit"           ,weight:4,color:45}
+        ];
+
+        var nodes = {};
+
+        //(2)从链接中分离出不同的节点
+        //一个小问题：节点的weight属性怎么产生的？
+        //思路就是：在连接中遍历链接，节点数组有了这个链接的源节点就把链接指向这个节点。没有的话把链接上的节点加到链接数组指定名称name属性，并把链接指向这个节点
+        links.forEach(function(link) {
+          console.log(nodes);
+          link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});//(填加节点数据)
+          link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+        });
+
+        var width = 960,
+            height = 500;
+
+        var force = d3.layout.force()
+            .nodes(d3.values(nodes))
+            .links(links)
+            .size([width, height])
+            .linkDistance(120)
+            .charge(-300)
+            .on("tick", tick)
+            .start();
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        //(3)为链接添加线
+        var link = svg.selectAll(".link")
+            .data(force.links())
+          	.enter().append("line")
+            .attr("class", "link");
+
+        var colors=d3.scale.category20();
+
+        link.style("stroke",function(d){//  设置线的颜色
+            return colors(d.color);
+        })
+        .style("stroke-width",function(d,i){//设置线的宽度
+            return d.weight;
+        });
+
+        //(4)为链接添加节点
+        var node = svg.selectAll(".node")
+            .data(force.nodes())
+            .enter().append("g")
+            .attr("class", "node")
+            .on("mouseover", mouseover)
+            .on("mouseout", mouseout)
+            .call(force.drag);
+
+
+        //设置圆点的半径，圆点的度越大weight属性值越大，可以对其做一点数学变换
+        function  radius (d){
+            if(!d.weight)    //节点weight属性没有值初始化为1（一般就是叶子了）
+                d.weight=1;
+        	return Math.log(d.weight)*10;
+        }
+        node.append("circle")
+            .attr("r",function(d){  //设置圆点半径
+        	return radius (d);
+         })
+            .style("fill",function(d){ //设置圆点的颜色
+            return colors(d.weight*d.weight*d.weight);
+        });
+
+        node.append("text")
+            .attr("x", 12)
+            .attr("dy", ".35em")
+            .text(function(d) { return d.name; });
+
+        function tick() {//打点更新坐标
+          link
+              .attr("x1", function(d) { return d.source.x; })
+              .attr("y1", function(d) { return d.source.y; })
+              .attr("x2", function(d) { return d.target.x; })
+              .attr("y2", function(d) { return d.target.y; });
+
+          node
+              .attr("transform", function(d) {
+              		return "translate(" + d.x + "," + d.y + ")";
+              });
+        }
+
+        function mouseover() {
+          d3.select(this).select("circle").transition()
+              .duration(750)
+              .attr("r", function(d){  //设置圆点半径
+        	return radius (d)+10;
+         }) ;
+        }
+
+        function mouseout() {
+          d3.select(this).select("circle").transition()
+              .duration(750)
+              .attr("r", function(d){  //恢复圆点半径
+        	return radius (d);
+         }) ;
+        }
+        </script>
+
+    </body>
+</html>
