@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+		<meta charset="utf-8">
+
+		<title>NVD3-1</title>
+
+		<script type="text/javascript" src="../d3/d3.js"></script>
+        <script type="text/javascript" src="../nvd3/nv.d3.js"></script>
+        <script type="text/javascript" src="../jquery.min.js"></script>
+        <script type="text/javascript" src="../bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="stream_layers.js"></script>
+
+        <link href="../bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="common.css" rel="stylesheet">
+        <link href="../nvd3/nv.d3.css" rel="stylesheet">
+
+	</head>
+	<body>
+        <div id ='chart'>
+            <svg style='height:500px'> </svg>
+		</div>
+
+        <script type="text/javascript">
+        nv.addGraph(function() {
+          var chart = nv.models.lineWithFocusChart();
+
+          chart.xAxis
+              .tickFormat(d3.format(',f'));
+
+          chart.yAxis
+              .tickFormat(d3.format(',.2f'));
+
+          chart.y2Axis
+              .tickFormat(d3.format(',.2f'));
+
+          d3.select('#chart svg')
+              .datum(testData())
+              .transition().duration(500)
+              .call(chart);
+
+          nv.utils.windowResize(chart.update);
+          return chart;
+        });
+
+        /* Simple test data generator*/
+        function testData() {
+          return stream_layers(3,128,.1).map(function(data, i) {
+            return {
+              key: 'Stream' + i,
+              values: data
+            };
+          });
+        }
+		</script>
+
+	</body>
+</html>
